@@ -29,6 +29,9 @@
   header { padding:20px; display:flex; justify-content:space-between; align-items:center; position:sticky; top:0; background:var(--bg); z-index:10; }
   .logo { font-size:26px; font-weight:800; }
   .logo span { color:var(--accent); }
+  .header-info { display: flex; align-items: center; gap: 8px; font-size:12px; color:var(--text-dim); font-family: 'DM Mono', monospace; }
+  .version-tag { background: var(--surface2); padding: 2px 6px; border-radius: 4px; font-size: 10px; border: 1px solid var(--border); }
+  
   .icon-btn { width:40px; height:40px; border-radius:12px; background:var(--surface); border:1px solid var(--border); display:flex; align-items:center; justify-content:center; cursor:pointer; }
   
   nav { display:flex; gap:6px; padding:0 20px 16px; }
@@ -91,7 +94,13 @@
 <div id="splash"><div class="splash-logo">Quit<span>ly</span></div></div>
 
 <header>
-  <div><div class="logo">Quit<span>ly</span></div><div id="headerDate" style="font-size:12px; color:var(--text-dim);"></div></div>
+  <div>
+    <div class="logo">Quit<span>ly</span></div>
+    <div class="header-info">
+      <span id="headerDate"></span>
+      <span class="version-tag">v2.1.0</span>
+    </div>
+  </div>
   <div class="icon-btn" onclick="switchView('stats', document.querySelector('nav button:last-child'))">⚙️</div>
 </header>
 
@@ -104,7 +113,7 @@
 <main>
   <div class="view active" id="view-home">
     <div class="card">
-      <div class="card-title">⏱ Time since last</div>
+      <div class="card-title">⏱ Zeit seit letztem Mal</div>
       <div class="ring-wrap">
         <svg class="ring-svg" viewBox="0 0 160 160">
           <circle class="ring-track" cx="80" cy="80" r="64"/>
@@ -112,7 +121,7 @@
         </svg>
         <div class="ring-center">
           <div class="ring-num" id="ringNum">—</div>
-          <div class="ring-unit" id="ringUnit">ready</div>
+          <div class="ring-unit" id="ringUnit">bereit</div>
         </div>
       </div>
       <div id="timerDetail" style="text-align:center; font-size:12px; color:var(--text-dim); font-family:'DM Mono'; margin-top:8px;"></div>
@@ -120,27 +129,27 @@
 
     <div class="stats-grid">
       <div class="stat-card">
-        <div class="stat-label">Relapse Rate</div>
+        <div class="stat-label">Rückfall-Quote</div>
         <div class="stat-val red" id="homeRelRate">0%</div>
       </div>
       <div class="stat-card">
-        <div class="stat-label">Current Streak</div>
+        <div class="stat-label">Aktueller Streak</div>
         <div class="stat-val orange" id="homeStreak">0</div>
       </div>
     </div>
 
-    <button class="quit-btn start" id="quitBtn" onclick="openStartModal()">Start Quitting</button>
-    <button class="quit-btn relapse" id="relapseBtn" onclick="openRelapseModal()" style="display:none;">⚠️ Log Relapse</button>
+    <button class="quit-btn start" id="quitBtn" onclick="openStartModal()">Timer starten</button>
+    <button class="quit-btn relapse" id="relapseBtn" onclick="openRelapseModal()" style="display:none;">⚠️ Rückschlag melden</button>
 
     <div class="card">
-      <div class="card-title">🏆 Milestones</div>
+      <div class="card-title">🏆 Meilensteine</div>
       <div id="milestoneList"></div>
     </div>
   </div>
 
   <div class="view" id="view-calendar">
     <div class="card">
-      <div class="card-title" id="calTitle">Month</div>
+      <div class="card-title" id="calTitle">Monat</div>
       <div class="cal-grid" id="calGrid"></div>
     </div>
   </div>
@@ -148,30 +157,30 @@
   <div class="view" id="view-stats">
     <div class="card">
       <div class="card-title">💾 Backup & Import</div>
-      <button class="action-btn" onclick="exportJSON()"><span>📤</span> Export as JSON</button>
-      <button class="action-btn" onclick="document.getElementById('importFile').click()"><span>📥</span> Import (JSON)</button>
+      <button class="action-btn" onclick="exportJSON()"><span>📤</span> Als JSON exportieren</button>
+      <button class="action-btn" onclick="document.getElementById('importFile').click()"><span>📥</span> Importieren (JSON)</button>
       <input type="file" id="importFile" style="display:none" accept=".json" onchange="importJSON(event)">
     </div>
     <div class="card">
-      <button class="action-btn" style="color:var(--red)" onclick="confirmReset()"><span>🗑️</span> Delete all data</button>
+      <button class="action-btn" style="color:var(--red)" onclick="confirmReset()"><span>🗑️</span> Alle Daten löschen</button>
     </div>
   </div>
 </main>
 
 <div class="modal-overlay" id="startModal" onclick="closeModal('startModal')">
   <div class="modal" onclick="event.stopPropagation()">
-    <h3 style="margin-bottom:15px">Choose Start Time</h3>
+    <h3 style="margin-bottom:15px">Startzeit wählen</h3>
     <input type="datetime-local" id="startTimeInput" class="modal-input">
-    <button class="quit-btn start" onclick="confirmStart()">Let's go!</button>
+    <button class="quit-btn start" onclick="confirmStart()">Los geht's!</button>
   </div>
 </div>
 
 <div class="modal-overlay" id="relapseModal" onclick="closeModal('relapseModal')">
   <div class="modal" onclick="event.stopPropagation()">
-    <h3 style="margin-bottom:10px">Confirm Relapse?</h3>
-    <p style="font-size:13px; color:var(--text-dim); margin-bottom:20px">The timer will be reset to zero. Stay strong!</p>
-    <button class="quit-btn start" style="background:var(--red)" onclick="confirmRelapse()">Confirm</button>
-    <button class="quit-btn relapse" onclick="closeModal('relapseModal')">Cancel</button>
+    <h3 style="margin-bottom:10px">Rückfall bestätigen?</h3>
+    <p style="font-size:13px; color:var(--text-dim); margin-bottom:20px">Der Timer wird auf Null gesetzt. Bleib stark!</p>
+    <button class="quit-btn start" style="background:var(--red)" onclick="confirmRelapse()">Bestätigen</button>
+    <button class="quit-btn relapse" onclick="closeModal('relapseModal')">Abbrechen</button>
   </div>
 </div>
 
@@ -179,9 +188,9 @@
 let state = { startTime: null, relapses: [], days: {} };
 let timerInterval = null;
 
-// Service Worker Registrierung (RELATIV ohne /)
+// Service Worker Registrierung (WICHTIG: Relativ für Unterordner)
 if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('sw.js').then(() => console.log("SW Registered"));
+  navigator.serviceWorker.register('sw.js').then(() => console.log("SW aktiv"));
 }
 
 function save() { localStorage.setItem('quitly_v2', JSON.stringify(state)); }
@@ -193,7 +202,7 @@ function load() {
 window.onload = () => {
   load();
   setTimeout(() => document.getElementById('splash').classList.add('hide'), 800);
-  document.getElementById('headerDate').textContent = new Date().toLocaleDateString('en-US', {weekday:'long', day:'numeric', month:'short'});
+  document.getElementById('headerDate').textContent = new Date().toLocaleDateString('de-DE', {weekday:'short', day:'numeric', month:'short'});
   updateUI();
   startTimer();
 };
@@ -201,7 +210,7 @@ window.onload = () => {
 function updateUI() {
   const active = !!state.startTime;
   document.getElementById('relapseBtn').style.display = active ? 'block' : 'none';
-  document.getElementById('quitBtn').textContent = active ? '🔄 Restart Timer' : 'Start Quitting';
+  document.getElementById('quitBtn').textContent = active ? '🔄 Timer neustarten' : 'Timer starten';
 
   const streak = calcStreak();
   document.getElementById('homeStreak').textContent = streak + " d";
@@ -231,7 +240,7 @@ function updateTimer() {
   
   if (diff < 0) { 
     document.getElementById('ringNum').textContent = '—'; 
-    document.getElementById('ringUnit').textContent = 'ready';
+    document.getElementById('ringUnit').textContent = 'bereit';
     return; 
   }
 
@@ -242,11 +251,11 @@ function updateTimer() {
 
   if (d > 0) {
     document.getElementById('ringNum').textContent = d;
-    document.getElementById('ringUnit').textContent = d === 1 ? "day" : "days";
+    document.getElementById('ringUnit').textContent = d === 1 ? "Tag" : "Tage";
   } else {
     const totalH = Math.floor(diff / 3600000);
     document.getElementById('ringNum').textContent = totalH;
-    document.getElementById('ringUnit').textContent = totalH === 1 ? "hour" : "hours";
+    document.getElementById('ringUnit').textContent = totalH === 1 ? "Stunde" : "Stunden";
   }
   
   document.getElementById('timerDetail').textContent = `${h}h ${m}m ${s}s`;
@@ -270,20 +279,20 @@ function calcStreak() {
 
 function renderMilestones() {
   const mSteps = [
-    { id: 1,  h: 1,      label: '1 Hour',      icon: '⏱️' },
-    { id: 2,  h: 12,     label: '12 Hours',     icon: '🌓' },
-    { id: 3,  h: 24,     label: '1 Day',        icon: '☀️' },
-    { id: 4,  h: 168,    label: '1 Week',       icon: '🏆' },
-    { id: 5,  h: 720,    label: '1 Month',      icon: '🌙' },
-    { id: 6,  h: 2160,   label: '3 Months',     icon: '🎖️' },
-    { id: 7,  h: 4380,   label: 'Half a Year',  icon: '🌟' },
-    { id: 8,  h: 8760,   label: 'One Year',     icon: '👑' }
+    { id: 1,  h: 1,      label: '1 Stunde',    icon: '⏱️' },
+    { id: 2,  h: 12,     label: '12 Stunden',   icon: '🌓' },
+    { id: 3,  h: 24,     label: '1 Tag',        icon: '☀️' },
+    { id: 4,  h: 168,    label: '1 Woche',      icon: '🏆' },
+    { id: 5,  h: 720,    label: '1 Monat',      icon: '🌙' },
+    { id: 6,  h: 2160,   label: '3 Monate',     icon: '🎖️' },
+    { id: 7,  h: 4380,   label: 'Halbes Jahr',  icon: '🌟' },
+    { id: 8,  h: 8760,   label: 'Ein Jahr',     icon: '👑' }
   ];
 
   const elapsedH = state.startTime ? (new Date() - new Date(state.startTime)) / 3600000 : 0;
   document.getElementById('milestoneList').innerHTML = mSteps.map(m => {
     const isDone = elapsedH >= m.h;
-    let desc = isDone ? 'Completed' : 'Remaining: ' + Math.ceil(m.h - elapsedH) + 'h';
+    let desc = isDone ? 'Erreicht' : 'Noch: ' + Math.ceil(m.h - elapsedH) + 'h';
     return `
       <div class="milestone">
         <div class="milestone-icon">${m.icon}</div>
@@ -291,7 +300,7 @@ function renderMilestones() {
           <div class="milestone-name">${m.label}</div>
           <div class="milestone-desc">${desc}</div>
         </div>
-        <div class="milestone-badge ${isDone ? 'done' : 'todo'}">${isDone ? '✓' : 'Pending'}</div>
+        <div class="milestone-badge ${isDone ? 'done' : 'todo'}">${isDone ? '✓' : 'Offen'}</div>
       </div>`;
   }).join('');
 }
@@ -344,7 +353,7 @@ function importJSON(e) {
       state = JSON.parse(event.target.result);
       save();
       location.reload();
-    } catch(err) { alert("Error importing file!"); }
+    } catch(err) { alert("Fehler beim Import!"); }
   };
   reader.readAsText(file);
 }
@@ -352,7 +361,7 @@ function importJSON(e) {
 function renderCalendar() {
   const grid = document.getElementById('calGrid');
   const now = new Date();
-  document.getElementById('calTitle').textContent = now.toLocaleDateString('en-US', {month:'long', year:'numeric'});
+  document.getElementById('calTitle').textContent = now.toLocaleDateString('de-DE', {month:'long', year:'numeric'});
   const daysInMonth = new Date(now.getFullYear(), now.getMonth()+1, 0).getDate();
   let html = '';
   for(let i=1; i<=daysInMonth; i++) {
@@ -364,7 +373,7 @@ function renderCalendar() {
   grid.innerHTML = html;
 }
 
-function confirmReset() { if(confirm("Are you sure you want to delete all data?")) { localStorage.clear(); location.reload(); } }
+function confirmReset() { if(confirm("Alle Daten unwiderruflich löschen?")) { localStorage.clear(); location.reload(); } }
 </script>
 </body>
 </html>
