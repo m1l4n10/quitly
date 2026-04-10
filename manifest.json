@@ -1,7 +1,7 @@
 {
   "name": "Quitly",
   "short_name": "Quitly",
-  "description": "Habit-Stopper-Tracker mit Streak & Kalender",
+  "description": "Habit-Stopper",
   "start_url": "https://m1l4n10.is-a.dev/quitly/index.html",
   "display": "standalone",
   "background_color": "#0a0a0a",

@@ -1,4 +1,4 @@
-const CACHE = 'quitly-v4'; 
+const CACHE = 'quitly-v41'; 
 const ASSETS = [
   'index.html',
   'manifest.json',
