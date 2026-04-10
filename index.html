@@ -182,6 +182,16 @@
   </div>
 </div>
 
+<div class="modal-overlay" id="dayModal" onclick="closeModal('dayModal')">
+  <div class="modal" onclick="event.stopPropagation()">
+    <h3 style="margin-bottom:6px">Mark Day</h3>
+    <p id="dayModalTitle" style="font-size:12px; color:var(--text-dim); font-family:'DM Mono'; margin-bottom:20px"></p>
+    <button id="dayCleanBtn" class="quit-btn start" onclick="setDay('clean')">✅ Clean Day</button>
+    <button id="dayRelapseBtn" class="quit-btn relapse" onclick="setDay('relapse')">⚠️ Relapse</button>
+    <button class="action-btn" style="justify-content:center; margin-top:4px" onclick="closeModal('dayModal')">Cancel</button>
+  </div>
+</div>
+
 <div class="modal-overlay" id="relapseModal" onclick="closeModal('relapseModal')">
   <div class="modal" onclick="event.stopPropagation()">
     <h3 style="margin-bottom:10px">Confirm Relapse?</h3>
@@ -321,7 +331,15 @@ function openStartModal() {
 
 function confirmStart() {
   state.startTime = new Date(document.getElementById('startTimeInput').value).toISOString();
-  state.days[new Date().toISOString().split('T')[0]] = 'clean';
+  // Mark all days from startTime up to today as clean
+  const start = new Date(state.startTime);
+  const today = new Date();
+  for (let d = new Date(start); d <= today; d.setDate(d.getDate() + 1)) {
+    const k = d.toISOString().split('T')[0];
+    if (!state.days[k] || state.days[k] !== 'relapse') {
+      state.days[k] = 'clean';
+    }
+  }
   save(); closeModal('startModal'); updateUI(); startTimer();
 }
 
@@ -365,17 +383,46 @@ function importJSON(e) {
   reader.readAsText(file);
 }
 
+let selectedDay = null;
+
+function toggleDay(k) {
+  const today = new Date().toISOString().split('T')[0];
+  if (k > today) return;
+  selectedDay = k;
+  const current = state.days[k];
+  document.getElementById('dayModalTitle').textContent = formatDayLabel(k);
+  document.getElementById('dayCleanBtn').style.opacity = current === 'clean' ? '0.4' : '1';
+  document.getElementById('dayRelapseBtn').style.opacity = current === 'relapse' ? '0.4' : '1';
+  document.getElementById('dayModal').classList.add('show');
+}
+
+function formatDayLabel(k) {
+  const d = new Date(k + 'T12:00:00');
+  return d.toLocaleDateString('en-US', {weekday:'short', day:'numeric', month:'long'});
+}
+
+function setDay(status) {
+  if (!selectedDay) return;
+  if (state.days[selectedDay] === status) delete state.days[selectedDay];
+  else state.days[selectedDay] = status;
+  selectedDay = null;
+  save(); closeModal('dayModal'); updateUI();
+}
+
 function renderCalendar() {
   const grid = document.getElementById('calGrid');
   const now = new Date();
-  document.getElementById('calTitle').textContent = now.toLocaleDateString('en-US', {month:'long', year:'numeric'});
+  const todayStr = now.toISOString().split('T')[0];
+  document.getElementById('calTitle').textContent = now.toLocaleDateString('en-US', {month:'long', year:'numeric'}).toUpperCase();
   const daysInMonth = new Date(now.getFullYear(), now.getMonth()+1, 0).getDate();
   let html = '';
   for(let i=1; i<=daysInMonth; i++) {
     let k = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(i).padStart(2,'0')}`;
-    let cls = 'cal-day ' + (state.days[k] || '');
-    if (i === now.getDate()) cls += ' today';
-    html += `<div class="${cls}">${i}</div>`;
+    let status = state.days[k] || '';
+    let cls = 'cal-day' + (status ? ' ' + status : '');
+    if (k === todayStr) cls += ' today';
+    const isFuture = k > todayStr;
+    html += `<div class="${cls}" style="${isFuture ? 'opacity:0.3;cursor:default' : 'cursor:pointer'}" onclick="toggleDay('${k}')">${i}</div>`;
   }
   grid.innerHTML = html;
 }
